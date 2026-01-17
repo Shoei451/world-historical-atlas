@@ -73,7 +73,6 @@ function YearText()
 	{
 		switch (data.lang) {
 		case 'ja':
-		case 'zh':
 			if (data.year < 0) {
 				year_text.innerText = "前" + (-data.year) + "年";
 			} else {
@@ -92,9 +91,6 @@ function YearText()
 		switch (data.lang) {
 		case 'ja':
 			year_text_sub.innerText = get_era_name(era_jp, data.year) + get_ganzhi_text(data.year);
-			break;
-		case 'zh':
-			year_text_sub.innerText = get_era_name(era_cn, data.year) + get_ganzhi_text(data.year);
 			break;
 		case 'en':
 			year_text_sub.innerText = get_century_text(data.year);
