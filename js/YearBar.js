@@ -13,11 +13,11 @@ function YearBar()
 	let on_changed_handler = null;
 	this.SIZE = _SIZE;
 
-
 	this.set_top = function(top)
 	{
 		year_bar.style.top = top + 'px';
 	};
+	
 	this.set_width = function(width)
 	{
 		if (width < 1) {
@@ -60,6 +60,7 @@ function YearBar()
 
 		update_cursor();
 	};
+	
 	function update_cursor()
 	{
 		data.year_clamp();
@@ -68,49 +69,138 @@ function YearBar()
 		if (yr > 3000) {
 			yr = yr * 2 - 3000;
 		}
-		cursor.style.left = ((yr + 200) * scale_width / 9400 + 26) + 'px';
+		const leftPos = (yr + 200) * scale_width / 9400 + 26;
+		cursor.style.left = leftPos + 'px';
+		
+		// ARIA属性を更新
+		year_bar.setAttribute('aria-valuenow', data.year);
+		year_bar.setAttribute('aria-valuetext', `年: ${data.year}`);
+	}
+
+	function changeYear(delta) {
+		data.year += delta;
+		update_cursor();
+		if (on_changed_handler) {
+			on_changed_handler();
+		}
+	}
+
+	function setYearFromPosition(xpos) {
+		if (xpos < _SIZE || xpos > scale_width + _SIZE) {
+			return;
+		}
+		
+		let yr = (xpos - 32) * 9400 / scale_width - 200;
+		if (yr > 3000) {
+			yr = (yr + 3000) / 2;
+		}
+		yr -= 4000;
+		data.year = Math.round(yr);
+		update_cursor();
+		
+		if (on_changed_handler) {
+			on_changed_handler();
+		}
 	}
 
 	this.onchanged = function(f)
 	{
 		on_changed_handler = f;
 	};
+	
 	this.update = update_cursor;
 
-	year_bar.addEventListener('mousedown', e =>
-	{
-		let xpos = e.clientX;
-		if (xpos < _SIZE) {
-			data.year--;
-		} else if (xpos > scale_width + _SIZE) {
-			data.year++;
-		} else {
-			let yr = (xpos - 32) * 9400 / scale_width - 200;
-			if (yr > 3000) {
-				yr = (yr + 3000) / 2;
-			}
-			yr -= 4000;
-			data.year = Math.round(yr);
+	// タイムラインバーのクリック
+	year_bar.addEventListener('click', e => {
+		setYearFromPosition(e.clientX);
+	});
+
+	// タイムラインバーのキーボード操作
+	year_bar.addEventListener('keydown', function(e) {
+		let handled = false;
+		const step = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
+		
+		switch(e.key) {
+			case 'ArrowRight':
+				changeYear(step);
+				handled = true;
+				break;
+				
+			case 'ArrowLeft':
+				changeYear(-step);
+				handled = true;
+				break;
+				
+			case 'Home':
+				data.year = -4000;
+				update_cursor();
+				if (on_changed_handler) on_changed_handler();
+				handled = true;
+				break;
+				
+			case 'End':
+				data.year = 2019;
+				update_cursor();
+				if (on_changed_handler) on_changed_handler();
+				handled = true;
+				break;
+				
+			case 'PageUp':
+				changeYear(100);
+				handled = true;
+				break;
+				
+			case 'PageDown':
+				changeYear(-100);
+				handled = true;
+				break;
 		}
-		update_cursor();
-		if (on_changed_handler) {
-			on_changed_handler();
+		
+		if (handled) {
+			e.preventDefault();
 		}
 	});
-	arrow_l.addEventListener('mouseenter', function(e)
-	{
-		arrow_l.src = 'img/arrow-left2.png';
+
+	// 矢印ボタン
+	arrow_l.addEventListener('click', function(e) {
+		e.stopPropagation();
+		changeYear(-1);
 	});
-	arrow_l.addEventListener('mouseleave', function(e)
-	{
-		arrow_l.src = 'img/arrow-left.png';
+	
+	arrow_r.addEventListener('click', function(e) {
+		e.stopPropagation();
+		changeYear(1);
 	});
-	arrow_r.addEventListener('mouseenter', function(e)
-	{
-		arrow_r.src = 'img/arrow-right2.png';
+
+	// 矢印ボタンのキーボード操作
+	arrow_l.addEventListener('keydown', function(e) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			changeYear(-1);
+		}
 	});
-	arrow_r.addEventListener('mouseleave', function(e)
-	{
-		arrow_r.src = 'img/arrow-right.png';
+	
+	arrow_r.addEventListener('keydown', function(e) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			changeYear(1);
+		}
+	});
+
+	// ホバー効果（既存のまま）
+	arrow_l.addEventListener('mouseenter', function(e) {
+		arrow_l.querySelector('img').src = 'img/arrow-left2.png';
+	});
+	
+	arrow_l.addEventListener('mouseleave', function(e) {
+		arrow_l.querySelector('img').src = 'img/arrow-left.png';
+	});
+	
+	arrow_r.addEventListener('mouseenter', function(e) {
+		arrow_r.querySelector('img').src = 'img/arrow-right2.png';
+	});
+	
+	arrow_r.addEventListener('mouseleave', function(e) {
+		arrow_r.querySelector('img').src = 'img/arrow-right.png';
 	});
 }

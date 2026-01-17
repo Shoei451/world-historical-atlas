@@ -9,8 +9,17 @@ function ZoomBar()
 	// 「つまみ」を動かす
 	function update_cursor()
 	{
-		cursor.style.left = (101 - data.zoom * 16) + 'px';
+		const leftPos = 101 - data.zoom * 16;
+		cursor.style.left = leftPos + 'px';
+		
+		// ARIA属性を更新
+		zoom_bar.setAttribute('aria-valuenow', data.zoom);
+		
+		// ズームレベルの説明
+		const zoomLabels = ['最小', '小', '中', '大', '最大'];
+		zoom_bar.setAttribute('aria-valuetext', `ズームレベル ${zoomLabels[data.zoom]}`);
 	}
+	
 	function zoom_limit()
 	{
 		if (data.zoom < 0) {
@@ -20,6 +29,34 @@ function ZoomBar()
 		}
 	}
 
+	function setZoom(newZoom) {
+		data.zoom = newZoom;
+		zoom_limit();
+		update_cursor();
+		
+		if (on_changed_handler) {
+			on_changed_handler();
+		}
+		
+		announceZoomChange();
+	}
+
+	function announceZoomChange() {
+		const zoomLabels = ['最小', '小', '中', '大', '最大'];
+		const announcement = document.createElement('div');
+		announcement.className = 'sr-only';
+		announcement.setAttribute('role', 'status');
+		announcement.setAttribute('aria-live', 'polite');
+		announcement.textContent = `ズームレベルが${zoomLabels[data.zoom]}に変更されました`;
+		document.body.appendChild(announcement);
+
+		setTimeout(() => {
+			if (announcement.parentNode) {
+				announcement.remove();
+			}
+		}, 2000);
+	}
+
 	this.update = update_cursor;
 
 	this.onchanged = function(f)
@@ -27,14 +64,72 @@ function ZoomBar()
 		on_changed_handler = f;
 	};
 
-	zoom_bar.addEventListener('mousedown', function(e)
+	// マウスクリック
+	zoom_bar.addEventListener('click', function(e)
 	{
 		// マウス座標からつまみ位置を求める
-		data.zoom = Math.floor((116 - e.clientX) / 16);
-		zoom_limit();
-		update_cursor();
-		if (on_changed_handler) {
-			on_changed_handler();
+		const rect = zoom_bar.getBoundingClientRect();
+		const clickX = e.clientX - rect.left;
+		const newZoom = Math.floor((116 - clickX) / 16);
+		setZoom(newZoom);
+	});
+
+	// キーボード操作
+	zoom_bar.addEventListener('keydown', function(e) {
+		let handled = false;
+		
+		switch(e.key) {
+			case 'ArrowRight':
+			case 'ArrowUp':
+				// ズームイン
+				if (data.zoom < 4) {
+					setZoom(data.zoom + 1);
+					handled = true;
+				}
+				break;
+				
+			case 'ArrowLeft':
+			case 'ArrowDown':
+				// ズームアウト
+				if (data.zoom > 0) {
+					setZoom(data.zoom - 1);
+					handled = true;
+				}
+				break;
+				
+			case 'Home':
+				// 最小ズーム
+				setZoom(0);
+				handled = true;
+				break;
+				
+			case 'End':
+				// 最大ズーム
+				setZoom(4);
+				handled = true;
+				break;
+				
+			case '+':
+			case '=':
+				// ズームイン
+				if (data.zoom < 4) {
+					setZoom(data.zoom + 1);
+					handled = true;
+				}
+				break;
+				
+			case '-':
+			case '_':
+				// ズームアウト
+				if (data.zoom > 0) {
+					setZoom(data.zoom - 1);
+					handled = true;
+				}
+				break;
+		}
+		
+		if (handled) {
+			e.preventDefault();
 		}
 	});
 
