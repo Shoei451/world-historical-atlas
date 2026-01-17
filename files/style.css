@@ -1,0 +1,431 @@
+/* ===== リセット & ベーススタイル ===== */
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+body {
+	background: url(img/back.png);
+	line-height: 1.5;
+}
+
+img {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	vertical-align: top;
+}
+
+/* ===== アクセシビリティ ===== */
+
+/* スクリーンリーダー専用（視覚的に非表示だが読み上げられる） */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* スキップリンク（Tabキーで表示） */
+.skip-link {
+	position: absolute;
+	top: -40px;
+	left: 0;
+	background: #000;
+	color: #fff;
+	padding: 8px;
+	text-decoration: none;
+	z-index: 100000;
+}
+
+.skip-link:focus {
+	top: 0;
+}
+
+/* フォーカス時の視覚的フィードバック */
+*:focus-visible {
+	outline: 3px solid #4A90E2;
+	outline-offset: 2px;
+}
+
+button:focus-visible {
+	outline: 3px solid #4A90E2;
+	outline-offset: 2px;
+}
+
+/* ===== ヘッダー ===== */
+#head {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	min-height: 48px;
+	background: rgba(0, 0, 0, 0.8); /* コントラスト改善 */
+	z-index: 10000;
+	padding: 8px;
+	box-sizing: border-box;
+}
+
+/* レスポンシブ対応: 小画面では縦に並べる */
+@media (max-width: 768px) {
+	#head {
+		min-height: auto;
+		padding: 12px 8px;
+	}
+	
+	#head nav {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+}
+
+/* ===== 言語ボタン ===== */
+.lang-button {
+	position: relative;
+	display: inline-block;
+	min-width: 80px;
+	min-height: 44px; /* タッチ操作のための最小サイズ */
+	padding: 8px 12px;
+	margin: 0 4px;
+	border: 2px solid #ccc;
+	background: white;
+	color: black;
+	text-align: center;
+	font-size: 14px;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	
+	/* ボタンとして認識させる */
+	font-family: inherit;
+	line-height: 1.4;
+}
+
+.lang-button:hover {
+	background: #f0f0f0;
+	border-color: #4A90E2;
+	transform: translateY(-2px);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.lang-button:active {
+	transform: translateY(0);
+}
+
+.lang-button[aria-pressed="true"] {
+	background: #4A90E2;
+	color: white;
+	border-color: #2E5C8A;
+	font-weight: bold;
+}
+
+/* レスポンシブ: 横並び → 縦並び */
+@media (max-width: 768px) {
+	.lang-button {
+		display: block;
+		width: 100%;
+		max-width: 200px;
+		margin: 4px auto;
+	}
+}
+
+/* ===== ズームバー ===== */
+#scale-zoom {
+	position: relative;
+	display: inline-block;
+	width: 148px;
+	height: 32px;
+	background: url(img/scale-zoom.png);
+	cursor: pointer;
+	margin-right: 16px;
+	vertical-align: middle;
+}
+
+#scale-zoom-cursor {
+	position: absolute;
+	top: 8px;
+	left: 37px;
+	pointer-events: none;
+}
+
+@media (max-width: 768px) {
+	#scale-zoom {
+		margin: 0 auto;
+		display: block;
+	}
+}
+
+/* ===== 地図レイヤー ===== */
+#layer-land, #layer-tert, #layer-info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+#layer-land img, #layer-tert img {
+	image-rendering: crisp-edges;
+	image-rendering: pixelated;
+}
+
+#layer-tert {
+	opacity: 0.5;
+}
+
+#layer-land img, #layer-tert img {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* 地図ドラッグ中のカーソル */
+#layer-info {
+	cursor: grab;
+}
+
+#layer-info:active {
+	cursor: grabbing;
+}
+
+/* ===== 年号入力 ===== */
+#year {
+	display: inline-block;
+	text-align: right;
+	margin: 0 16px;
+	color: white;
+	vertical-align: middle;
+}
+
+#year-text {
+	font-size: 16px;
+	font-weight: bold;
+	cursor: pointer;
+	background: transparent;
+	border: 2px dashed rgba(255,255,255,0.5);
+	color: white;
+	padding: 4px 8px;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	min-height: 44px; /* タッチ対応 */
+}
+
+#year-text:hover {
+	border-color: white;
+	background: rgba(255,255,255,0.1);
+}
+
+#year-input {
+	display: none;
+	width: 8em;
+	max-width: 150px;
+	border: 2px solid #4A90E2;
+	font-size: 16px;
+	font-weight: bold;
+	background: white;
+	color: black;
+	text-align: right;
+	padding: 8px;
+	border-radius: 4px;
+	min-height: 44px; /* タッチ対応 */
+}
+
+#year-input:focus {
+	outline: 3px solid #4A90E2;
+	outline-offset: 2px;
+}
+
+#year-sub {
+	text-align: right;
+	margin: 4px 16px 0 16px;
+	font-size: 14px;
+	color: white;
+}
+
+@media (max-width: 768px) {
+	#year {
+		display: block;
+		text-align: center;
+		margin: 8px 0;
+	}
+	
+	#year-sub {
+		text-align: center;
+		margin: 4px 0;
+	}
+}
+
+/* ===== タイムラインバー ===== */
+#year-bar-scale {
+	margin: 0;
+	padding: 0;
+	vertical-align: top;
+}
+
+#year-bar-cursor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+}
+
+#year-bar {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	background: rgba(0,0,0,0.8);
+	padding: 4px;
+	box-sizing: border-box;
+}
+
+#year-arrow-left, #year-arrow-right {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	min-width: 44px;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+}
+
+#year-arrow-left:hover, #year-arrow-right:hover {
+	background: rgba(255,255,255,0.2);
+	border-radius: 4px;
+}
+
+#year-arrow-left img, #year-arrow-right img {
+	width: 32px;
+	height: 32px;
+}
+
+/* ===== 地域情報パネル ===== */
+.region {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 218px;
+	min-height: 100px;
+	background: rgba(255,255,255,0.95);
+	border: 2px solid #333;
+	border-radius: 8px;
+	padding: 8px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.region-title {
+	padding-bottom: 6px;
+	font-size: 14px;
+	font-weight: bold;
+	cursor: default;
+	border-bottom: 2px solid #4A90E2;
+	margin-bottom: 8px;
+}
+
+.person-list {
+	background: rgba(255,255,255,0.95);
+	color: black;
+	font-size: 12px;
+}
+
+.person {
+	min-height: 64px;
+	padding: 4px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.person:last-child {
+	border-bottom: none;
+}
+
+.person div {
+	padding: 3px 4px 0 52px;
+	cursor: default;
+}
+
+.person img {
+	float: left;
+	border-radius: 4px;
+}
+
+/* ===== レスポンシブ調整 ===== */
+@media (max-width: 480px) {
+	.region {
+		width: calc(100vw - 32px);
+		max-width: 300px;
+	}
+	
+	body {
+		font-size: 14px;
+	}
+	
+	.lang-button {
+		font-size: 13px;
+		min-height: 48px;
+	}
+}
+
+/* ===== ローディング状態 ===== */
+.loading {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(0,0,0,0.8);
+	color: white;
+	padding: 20px 40px;
+	border-radius: 8px;
+	font-size: 18px;
+	z-index: 100001;
+}
+
+/* ===== ハイコントラストモード対応 ===== */
+@media (prefers-contrast: high) {
+	#head {
+		background: black;
+	}
+	
+	.lang-button {
+		border-width: 3px;
+	}
+	
+	.region {
+		border-width: 3px;
+	}
+}
+
+/* ===== ダークモード対応 ===== */
+@media (prefers-color-scheme: dark) {
+	body {
+		background-color: #1a1a1a;
+	}
+	
+	.region {
+		background: rgba(40, 40, 40, 0.95);
+		color: #e0e0e0;
+		border-color: #555;
+	}
+	
+	.region-title {
+		border-bottom-color: #6BA3E2;
+	}
+	
+	.person {
+		border-bottom-color: #444;
+	}
+}
